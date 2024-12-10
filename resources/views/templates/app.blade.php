@@ -23,20 +23,39 @@
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <div class="navbar-toggler-collapse" id="navbarNav">
+            </div>
             <div class="collapse navbar-collapse" id="navbarNav">
+                @if(Auth::check())
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        {{-- panggil lewat path href="/path" --}}
-                        <a class="nav-link {{ Route::is('welcome') ? 'active' : '' }}" aria-current="page" href="/">Home</a>
-                    </li>
+                    {{-- <li class="nav-item">
+                        panggil lewat path href="/path"
+                        <a class="nav-link {{ Route::is('login') ? 'active' : '' }}" aria-current="page" href="/">Login</a>
+                    </li> --}}
                     <li class="nav-item">
                         {{-- panggil lewat name href="{{ route('name_routenya') }}" --}}
                         <a class="nav-link {{ Route::is('landing_page') ? 'active' : '' }}" href="{{ route('landing_page') }}">Landing</a>
                     </li>
+                    @if (Auth::user()->role == 'admin')
                     <li class="nav-item">
-                        <a class="nav-link {{ Route::is('data_obat') ? 'active' : '' }}" href="{{ route('data_obat') }}">Data Obat</a>
+                        <a class="nav-link {{ Route::is('data_obat') ? 'active' : '' }}" href="{{ route('data_obat.data') }}">Data Obat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Route::is('kelola-akun') ? 'active' : '' }}" href="{{ route('kelola_akun.user') }}">kelola akun</a>
+                    </li>
+                    {{-- <li class="nav-item">
+                        <a class="nav-link {{ Route::is('user.index') ? 'active': ''}}" href="{{ route('user.index')}}">Data Akun</a>
+                    </li> --}}
+                    @else
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('kasir.order')}}">Pembelian</a>
+                    </li>
+                    @endif
+                    <li class="nav-item">
+                        <a href="{{ route('logout')}}" class="nav-link">Logout</a>
                     </li>
                 </ul>
+                @endif
             </div>
         </div>
     </nav>

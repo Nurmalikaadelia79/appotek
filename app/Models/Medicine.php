@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Medicine extends Model
 {
     use HasFactory;
-    // jika nama model & migration ga sinkron perlu ditambah :
-    // public $table = 'medicines';
-    // column yg boleh diisi sama pengguna/isi datanya bukan otomatis dr sistem
+
+    // Allowable fields for mass assignment
     protected $fillable = ['name', 'type', 'price', 'stock'];
 }

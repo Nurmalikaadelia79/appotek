@@ -53,6 +53,14 @@ class MedicineController extends Controller
             'type' => 'required',
             'price' => 'required|numeric',
             'stock' => 'required|numeric'
+        ], [
+            'name.required' => 'Nama Obat Harus Diisi!',
+            'name.max' => 'Nama Obat Harus Diisi Maksimal 100 Karakter!',
+            'type.required' => 'Tipe Obat Harus Diisi!',
+            'price.required' => 'Harga Obat Harus Diisi!',
+            'price.numeric' => 'Harga Obat Harus Diisi Dengan Angka!',
+            'stock.required' => 'Stok Obat Harus Diisi',
+            'stock.numeric' => 'Stok Obat Harus Diisi Dengan Angka!',
         ]);
 
         Medicine::create($request->all());
@@ -75,6 +83,7 @@ class MedicineController extends Controller
     public function edit($id)
     {
         $medicine = Medicine::find($id);
+        //get,simplePaginate,paginate,first,rirstOrFail
         return view('medicine.edit', compact('medicine'));
     }
 
@@ -85,7 +94,7 @@ class MedicineController extends Controller
     {
         $request->validate([
             'name' => 'required|max:100',
-            'tipe' => 'required',
+            'type' => 'required',
             'price' => 'required|numeric'
         ]);
 
@@ -95,14 +104,30 @@ class MedicineController extends Controller
             'price' => $request->price
         ]);
 
-        return redirect()->back()->with('success', 'Berhasil Menambah Data Obat!');
+        return redirect()->route('data_obat.data')->with('success', 'Berhasil Menambah Data Obat!');
+    }
+
+    public function updatestock(Request $request, $id)
+    {
+        if (isset($request->stock) == FALSE) {$medicineBefore = Medicine::find($id);
+            return redirect()->back()->with([
+                'failed' => 'Stok tidak boleh kosong!' ,
+                'id' => $id, 
+                'stock' => $medicineBefore['stock']
+            ]);
+        }
+
+        Medicine::where('id', $id)->update(['stock' => $request->stock]);
+        return redirect()->back()->with('success', 'Berhasil menambahkan Obat');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Medicine $medicine)
+    public function destroy($id)
     {
-        //
+        Medicine::where('id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Berhasil Menghapus Data Obat!');
     }
 }

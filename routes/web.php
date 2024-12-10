@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,25 +16,56 @@ use App\Http\Controllers\MedicineController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
+Route::middleware(['IsLogout'])->group(function() {
 Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+    return view('login');
+})->name('login');
+Route::post('/login', [UserController::class, 'loginProses'])->name('login.proses');
+});
+Route::middleware(['IsLogin'])->group(function() {
+Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
 // Route::httpMethod('/path', [NamaController::class, 'namaFunc'])->name('identitas_route');
-// httpMethod 
+// httpMethod   
 // get -> mengambil data/menampilkan halaman
 // post -> mengirim data ke database (tambah data)
 // patch/put -> mengubah data di database
 // delete -> menghapus data
 Route::get('/landing-page', [LandingPageController::class, 'index'])->name('landing_page');
 
+Route::middleware(['IsAdmin'])->group(function(){
 // mengelola data obat
-Route::get('/data-obat', [MedicineController::class, 'index'])->name('data_obat');
-
-Route::prefix('/dashboard')->name('medicines.')->group(function(){
-    Route::get('/halaman-tambah-obat', [MedicineController::class, 'create'])->name('create');
-    Route::post('/create-obat', [MedicineController::class, 'store'])->name('store.obat');
-    Route::get('/halaman-ubah-obat/{id}', [MedicineController::class, 'edit'])->name('edit');
-    Route::patch('/update-obat/{id}', [MedicineController::class, 'update'])->name('update.obat');
+Route::prefix('/data-obat')->name('data_obat.')->group(function() {
+    Route::get('/data', [MedicineController::class, 'index'])->name('data');
+    Route::get('/tambah', [MedicineController::class, 'create'])->name('tambah');
+    Route::post('/tambah/proses', [MedicineController::class, 'store'])->name('tambah.proses');
+    Route::get('/ubah/{id}', [MedicineController::class, 'edit'])->name('ubah');
+    Route::patch('/ubah/{id}/proses', [MedicineController::class, 'update'])->name('ubah.proses');
+    Route::delete('/hapus/{id}', [MedicineController::class, 'destroy'])->name('hapus');
+    Route::patch('/ubah/stok/{id}', [MedicineController::class, 'updateStock'])->name('ubah.stok');
+    //Route::get('/kelola-akun', function () {})->name('kelola-akun');
 });
+//kelola akun
+Route::prefix('/kelola-akun')->name('kelola_akun.')->group(function() {
+    Route::get('/user', [UserController::class, 'kelolaAkun'])->name('user');//karna untuk menambahkan datanya saja 
+    Route::get('/tambah', [UserController::class, 'create'])->name('tambah');//tidak diperlukan karna tidak mengambil ID nya 
+    Route::post('/tambah/proses', [UserController::class, 'store'])->name('tambah.proses');
+    Route::get('/ubah/{id}', [UserController::class, 'edit'])->name('ubah');//untuk mengambil primary key table user //get untuk mengambild ata yang sudah di input
+    Route::delete('/hapus/{id}', [UserController::class, 'destroy'])->name('hapus');
+    Route::patch('/ubah/{id}/proses', [UserController::class, 'update'])->name('ubah.proses');//id di dapatkan dari primary key //untuk mengubah data yang baru
+    //untuk mengambil nama gmail role dan password ,karna banyak jadi di wakilkan oleh primary key
+});
+});
+
+Route::middleware(['isKasir'])->group( function() {
+    Route::prefix('/kasir.')->name('kasir.')->group(function() {
+        Route::get('/order', [OrderController::class, 'index'])->name('order');
+        Route::get('/tambah', [OrderController::class, 'create'])->name('tambah');
+        Route::post('/store', [OrderController::class, 'store'])->name('store');
+        Route::get('/print/{id}', [OrderController::class, 'show'])->name('print');
+        Route::get('/download-pdf/{id}', [OrderController::class, 'downloadPDF'])->name('download.pdf');
+
+    });
+});
+});
+
